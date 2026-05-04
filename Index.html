@@ -1,0 +1,1448 @@
+
+html_code = '''<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashPilot - Pilote ton argent</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ============================
+           1. RESET & BASE
+           ============================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        /* ============================
+           2. NAVIGATION FIXE
+           ============================ */
+        .navbar {
+            background-color: #1a56db;
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(26,86,219,0.2);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            color: #fff;
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #fff;
+            border-bottom: 2px solid #fff;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ============================
+           3. CONTAINER & SECTIONS
+           ============================ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================
+           4. CARDS (UI FINTECH)
+           ============================ */
+        .card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(26,86,219,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(26,86,219,0.12);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1a56db;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title .icon {
+            font-size: 1.5rem;
+        }
+
+        /* ============================
+           5. DASHBOARD
+           ============================ */
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #1a56db;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero .slogan {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #1a56db;
+            color: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.02);
+        }
+
+        .stat-card.red {
+            background: #e02424;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* ============================
+           6. FORMULAIRES
+           ============================ */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #1a56db;
+            box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: #1a56db;
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #1e429f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26,86,219,0.3);
+        }
+
+        .btn-red {
+            background: #e02424;
+        }
+
+        .btn-red:hover {
+            background: #c81e1e;
+            box-shadow: 0 4px 15px rgba(224,36,36,0.3);
+        }
+
+        .btn-green {
+            background: #059669;
+        }
+
+        .btn-green:hover {
+            background: #047857;
+            box-shadow: 0 4px 15px rgba(5,150,105,0.3);
+        }
+
+        .btn-gray {
+            background: #6b7280;
+        }
+
+        .btn-gray:hover {
+            background: #4b5563;
+            box-shadow: 0 4px 15px rgba(107,114,128,0.3);
+        }
+
+        /* ============================
+           7. RÉSULTATS / ALERTES
+           ============================ */
+        .result-box {
+            background: #eff6ff;
+            border-left: 4px solid #1a56db;
+            padding: 1.5rem;
+            border-radius: 0 16px 16px 0;
+            margin-top: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        /* ============================
+           8. COMPTE ÉPARGNE (PORTEFEUILLE)
+           ============================ */
+        .balance-display {
+            background: #1a56db;
+            color: #fff;
+            padding: 2.5rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .balance-display .balance-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .balance-display .balance-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #fff;
+            margin: 0.5rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .transaction-item:hover {
+            background: #f8fafc;
+        }
+
+        .transaction-item .amount-positive {
+            color: #1a56db;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .transaction-item .amount-negative {
+            color: #e02424;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .transaction-item .date {
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .transaction-item .desc {
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* ============================
+           9. BARRE DE PROGRESSION
+           ============================ */
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar-bg {
+            background: #e2e8f0;
+            border-radius: 12px;
+            height: 24px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: #1a56db;
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        /* ============================
+           10. CHAT IA (STYLE WHATSAPP)
+           ============================ */
+        .chat-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(26,86,219,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8fafc;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 1rem 1.2rem;
+            border-radius: 18px;
+            margin-bottom: 1rem;
+            animation: messageAppear 0.3s ease;
+            line-height: 1.5;
+        }
+
+        @keyframes messageAppear {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: #1a56db;
+            color: #fff;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot {
+            background: #fff;
+            color: #333;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 1rem;
+            background: #fff;
+            border-top: 1px solid #e2e8f0;
+            gap: 0.5rem;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #1a56db;
+        }
+
+        /* ============================
+           11. BANNIÈRE MOTIVATION
+           ============================ */
+        .motivation-banner {
+            background: #1a56db;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+        }
+
+        /* ============================
+           12. ANALYSE RETRAIT INTELLIGENT
+           ============================ */
+        .analyse-retrait {
+            background: #fffbeb;
+            border: 2px solid #fcd34d;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: none;
+        }
+
+        .analyse-retrait.visible {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .analyse-retrait h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .analyse-retrait .conseil-liste {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .analyse-retrait .conseil-liste li {
+            margin-bottom: 0.5rem;
+            color: #78350f;
+        }
+
+        .analyse-retrait .montant-suggere {
+            background: #fef3c7;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .analyse-retrait .montant-suggere input {
+            width: 200px;
+            padding: 0.5rem;
+            border: 2px solid #fcd34d;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* ============================
+           13. RESPONSIVE (MOBILE)
+           ============================ */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: #1a56db;
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 5rem 1rem 1rem;
+            }
+
+            .balance-display .balance-amount {
+                font-size: 2rem;
+            }
+        }
+
+        /* ============================
+           14. UTILITAIRES
+           ============================ */
+        .text-blue { color: #1a56db; }
+        .text-red { color: #e02424; }
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mt-2 { margin-top: 1rem; }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- ============================
+         NAVIGATION FIXE
+         ============================ -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">✈️</span>
+                CashPilot
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a onclick="showSection('dashboard')" class="active" id="nav-dashboard">Dashboard</a></li>
+                <li><a onclick="showSection('budget')" id="nav-budget">Budget</a></li>
+                <li><a onclick="showSection('epargne')" id="nav-epargne">Épargne</a></li>
+                <li><a onclick="showSection('graphique')" id="nav-graphique">Graphique</a></li>
+                <li><a onclick="showSection('chat')" id="nav-chat">Chat IA</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- ============================
+             SECTION 1 : DASHBOARD
+             ============================ -->
+        <section id="dashboard" class="section active">
+            <div class="hero">
+                <h1>CashPilot</h1>
+                <p class="slogan">Pilote ton argent, atteins tes objectifs</p>
+            </div>
+
+            <!-- Bannière motivationnelle -->
+            <div id="motivationBanner" class="motivation-banner" style="display:none;">
+                🚀 Continue comme ça, tu progresses !
+            </div>
+
+            <!-- Cartes de statistiques -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Solde actuel</div>
+                    <div class="stat-value" id="dashSolde">0 FCFA</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-label">Objectif</div>
+                    <div class="stat-value" id="dashObjectif">0 FCFA</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Progression</div>
+                    <div class="stat-value" id="dashProgression">0%</div>
+                </div>
+            </div>
+
+            <!-- Carte de progression -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📊</span>
+                    Vue d'ensemble
+                </div>
+                <div class="progress-container">
+                    <p class="mb-2">Progression vers ton objectif :</p>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="dashProgressBar" style="width: 0%">0%</div>
+                    </div>
+                </div>
+                <p id="dashResume" class="text-center mt-2" style="color: #666;">
+                    Configure ton budget pour voir tes statistiques ici.
+                </p>
+            </div>
+        </section>
+
+        <!-- ============================
+             SECTION 2 : PLANIFICATION BUDGET
+             ============================ -->
+        <section id="budget" class="section">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📝</span>
+                    Planification Budget
+                </div>
+                <form id="budgetForm">
+                    <div class="form-group">
+                        <label for="salaire">Salaire mensuel (FCFA)</label>
+                        <input type="number" id="salaire" placeholder="Ex: 250000" required>
+                    </div>
+
+                    <h3 style="margin: 1.5rem 0 1rem; color: #333;">Dépenses mensuelles</h3>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label for="nourriture">Nourriture (FCFA)</label>
+                            <input type="number" id="nourriture" placeholder="Ex: 50000" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="transport">Transport (FCFA)</label>
+                            <input type="number" id="transport" placeholder="Ex: 20000" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="loisirs">Loisirs (FCFA)</label>
+                            <input type="number" id="loisirs" placeholder="Ex: 30000" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="autres">Autres (FCFA)</label>
+                            <input type="number" id="autres" placeholder="Ex: 40000" value="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label for="objectifText">Objectif financier</label>
+                        <input type="text" id="objectifText" placeholder="Ex: Acheter une moto, partir en voyage...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="objectifMontant">Montant objectif (FCFA)</label>
+                        <input type="number" id="objectifMontant" placeholder="Ex: 1000000" required>
+                    </div>
+
+                    <button type="submit" class="btn">
+                        <span>🔍</span> Analyser
+                    </button>
+                </form>
+
+                <!-- Zone des résultats -->
+                <div id="budgetResults" style="display:none;">
+                    <div class="result-box">
+                        <h3 style="margin-bottom: 1rem;">📈 Résultats de l'analyse</h3>
+                        <p><strong>Total dépenses :</strong> <span id="resTotalDepenses">0</span> FCFA</p>
+                        <p><strong>Argent restant :</strong> <span id="resRestant">0</span> FCFA</p>
+                        <p><strong>Épargne possible/mois :</strong> <span id="resEpargne">0</span> FCFA</p>
+                        <p><strong>Mois pour atteindre l'objectif :</strong> <span id="resMois">0</span></p>
+                    </div>
+                    <div id="budgetAlert"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================
+             SECTION 3 : COMPTE ÉPARGNE
+             ============================ -->
+        <section id="epargne" class="section">
+            <!-- Affichage du solde (style portefeuille) -->
+            <div class="balance-display">
+                <div class="balance-label">Solde épargne</div>
+                <div class="balance-amount" id="soldeEpargne">0 FCFA</div>
+                <p style="opacity: 0.9; margin-top: 0.5rem;">Ton faux compte bancaire</p>
+            </div>
+
+            <div class="grid-2">
+                <!-- Formulaire d'ajout (Dépôt) -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="icon">💰</span>
+                        Ajouter de l'épargne
+                    </div>
+                    <div class="form-group">
+                        <label for="montantDepot">Montant à ajouter (FCFA)</label>
+                        <input type="number" id="montantDepot" placeholder="Ex: 50000" min="1">
+                    </div>
+                    <button class="btn" onclick="ajouterDepot()">
+                        <span>➕</span> Ajouter
+                    </button>
+                </div>
+
+                <!-- Formulaire de retrait intelligent -->
+                <div class="card">
+                    <div class="card-title">
+                        <span class="icon">💸</span>
+                        Retirer de l'argent
+                    </div>
+                    <div class="form-group">
+                        <label for="raisonRetrait">Pourquoi veux-tu retirer ? (décris ton achat)</label>
+                        <textarea id="raisonRetrait" placeholder="Ex: Je veux acheter des chaussures neuves pour aller au travail..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="montantRetrait">Montant à retirer (FCFA)</label>
+                        <input type="number" id="montantRetrait" placeholder="Ex: 25000" min="1">
+                    </div>
+                    <button class="btn btn-red" onclick="analyserRetrait()">
+                        <span>🧠</span> Analyser mon retrait
+                    </button>
+
+                    <!-- Zone d'analyse intelligente du retrait -->
+                    <div id="analyseRetrait" class="analyse-retrait">
+                        <h4>🧠 Analyse CashPilot</h4>
+                        <p id="messageAnalyse"></p>
+                        <ul id="conseilsListe" class="conseil-liste"></ul>
+                        <div class="montant-suggere">
+                            <p style="margin-bottom: 0.5rem;">💡 Montant suggéré :</p>
+                            <input type="number" id="montantSuggere" value="0">
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">Tu peux modifier ce montant</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+                            <button class="btn btn-red" onclick="confirmerRetrait()">
+                                <span>✅</span> Confirmer le retrait
+                            </button>
+                            <button class="btn btn-gray" onclick="annulerRetrait()">
+                                <span>❌</span> Annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique des transactions -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📜</span>
+                    Historique des transactions
+                </div>
+                <div class="transaction-list" id="historiqueTransactions">
+                    <p style="color: #999; text-align: center;">Aucune transaction pour le moment</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================
+             SECTION 4 : GRAPHIQUE
+             ============================ -->
+        <section id="graphique" class="section">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📊</span>
+                    Évolution de l'épargne
+                </div>
+                <canvas id="epargneChart" height="100"></canvas>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🎯</span>
+                    Progression vers l'objectif
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="graphProgressBar" style="width: 0%">0%</div>
+                    </div>
+                </div>
+                <p class="text-center mt-2" id="graphProgressText">
+                    Objectif : 0 FCFA | Actuel : 0 FCFA
+                </p>
+            </div>
+        </section>
+
+        <!-- ============================
+             SECTION 5 : CHAT IA
+             ============================ -->
+        <section id="chat" class="section">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        👋 Salut ! Je suis ton conseiller financier CashPilot. Pose-moi tes questions sur l'épargne, le budget ou l'investissement !
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Écris ton message..." onkeypress="if(event.key==='Enter') envoyerMessage()">
+                    <button class="btn" onclick="envoyerMessage()">
+                        <span>📤</span> Envoyer
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============================
+         JAVASCRIPT
+         ============================ -->
+    <script>
+        // ============================
+        // DONNÉES & LOCALSTORAGE
+        // ============================
+        let data = {
+            salaire: 0,
+            depenses: { nourriture: 0, transport: 0, loisirs: 0, autres: 0 },
+            objectifText: '',
+            objectifMontant: 0,
+            epargne: 0,
+            transactions: [],
+            chartData: { labels: [], data: [] }
+        };
+
+        // Variables temporaires pour le retrait
+        let retraitTemp = { raison: '', montant: 0 };
+
+        // Charger les données depuis localStorage
+        function chargerDonnees() {
+            const sauvegarde = localStorage.getItem('cashpilot_data');
+            if (sauvegarde) {
+                data = JSON.parse(sauvegarde);
+                mettreAJourInterface();
+            }
+        }
+
+        // Sauvegarder les données dans localStorage
+        function sauvegarderDonnees() {
+            localStorage.setItem('cashpilot_data', JSON.stringify(data));
+        }
+
+        // ============================
+        // NAVIGATION
+        // ============================
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            document.getElementById('nav-' + sectionId).classList.add('active');
+            document.getElementById('navLinks').classList.remove('active');
+            if (sectionId === 'graphique') {
+                mettreAJourGraphique();
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        // ============================
+        // DASHBOARD
+        // ============================
+        function mettreAJourDashboard() {
+            document.getElementById('dashSolde').textContent = formaterFCFA(data.epargne);
+            document.getElementById('dashObjectif').textContent = formaterFCFA(data.objectifMontant);
+
+            let progression = 0;
+            if (data.objectifMontant > 0) {
+                progression = Math.min(100, Math.round((data.epargne / data.objectifMontant) * 100));
+            }
+            document.getElementById('dashProgression').textContent = progression + '%';
+            document.getElementById('dashProgressBar').style.width = progression + '%';
+            document.getElementById('dashProgressBar').textContent = progression + '%';
+
+            if (data.objectifMontant > 0) {
+                document.getElementById('dashResume').innerHTML = `
+                    Objectif : <strong>${data.objectifText || 'Non défini'}</strong><br>
+                    Tu as épargné <strong>${formaterFCFA(data.epargne)}</strong> sur <strong>${formaterFCFA(data.objectifMontant)}</strong>
+                `;
+            }
+
+            const banner = document.getElementById('motivationBanner');
+            if (progression > 0) {
+                banner.style.display = 'block';
+                const messages = [
+                    "🚀 Continue comme ça, tu progresses !",
+                    "🔥 Tu es sur la bonne voie !",
+                    "💪 Chaque franc compte, bravo !",
+                    "🎯 Tu te rapproches de ton objectif !"
+                ];
+                banner.textContent = messages[Math.floor(Math.random() * messages.length)];
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        // ============================
+        // BUDGET - FORMULAIRE
+        // ============================
+        document.getElementById('budgetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            data.salaire = parseFloat(document.getElementById('salaire').value) || 0;
+            data.depenses.nourriture = parseFloat(document.getElementById('nourriture').value) || 0;
+            data.depenses.transport = parseFloat(document.getElementById('transport').value) || 0;
+            data.depenses.loisirs = parseFloat(document.getElementById('loisirs').value) || 0;
+            data.depenses.autres = parseFloat(document.getElementById('autres').value) || 0;
+            data.objectifText = document.getElementById('objectifText').value;
+            data.objectifMontant = parseFloat(document.getElementById('objectifMontant').value) || 0;
+
+            const totalDepenses = data.depenses.nourriture + data.depenses.transport + 
+                                  data.depenses.loisirs + data.depenses.autres;
+            const restant = data.salaire - totalDepenses;
+            const epargnePossible = Math.max(0, restant);
+            const mois = epargnePossible > 0 ? Math.ceil(data.objectifMontant / epargnePossible) : '∞';
+
+            document.getElementById('resTotalDepenses').textContent = formaterNombre(totalDepenses);
+            document.getElementById('resRestant').textContent = formaterNombre(restant);
+            document.getElementById('resEpargne').textContent = formaterNombre(epargnePossible);
+            document.getElementById('resMois').textContent = mois;
+
+            const alertDiv = document.getElementById('budgetAlert');
+            alertDiv.innerHTML = '';
+
+            if (totalDepenses > data.salaire * 0.8) {
+                alertDiv.innerHTML += `<div class="alert alert-warning">⚠️ Attention ! Tes dépenses représentent plus de 80% de ton salaire.</div>`;
+            } else if (totalDepenses < data.salaire * 0.5) {
+                alertDiv.innerHTML += `<div class="alert alert-success">🎉 Excellent ! Tu as un bon ratio dépenses/revenus.</div>`;
+            } else {
+                alertDiv.innerHTML += `<div class="alert alert-info">💡 Ton budget est équilibré.</div>`;
+            }
+
+            if (epargnePossible <= 0) {
+                alertDiv.innerHTML += `<div class="alert alert-danger">🚨 Tu dépenses plus que tu ne gagnes !</div>`;
+            }
+
+            document.getElementById('budgetResults').style.display = 'block';
+            sauvegarderDonnees();
+            mettreAJourDashboard();
+        });
+
+        // ============================
+        // DÉPÔT
+        // ============================
+        function ajouterDepot() {
+            const montant = parseFloat(document.getElementById('montantDepot').value);
+            if (!montant || montant <= 0) {
+                alert('Veuillez entrer un montant valide');
+                return;
+            }
+
+            data.epargne += montant;
+
+            const transaction = {
+                type: 'depot',
+                nom: 'Dépôt',
+                raison: '',
+                montant: montant,
+                date: new Date().toLocaleDateString('fr-FR'),
+                heure: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})
+            };
+            data.transactions.unshift(transaction);
+
+            ajouterPointGraphique(data.epargne);
+            document.getElementById('montantDepot').value = '';
+
+            sauvegarderDonnees();
+            mettreAJourInterface();
+        }
+
+        // ============================
+        // RETRAIT INTELLIGENT - ANALYSE
+        // ============================
+        function analyserRetrait() {
+            const raison = document.getElementById('raisonRetrait').value.trim();
+            const montant = parseFloat(document.getElementById('montantRetrait').value);
+
+            if (!raison || !montant || montant <= 0) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            if (montant > data.epargne) {
+                alert('Solde insuffisant !');
+                return;
+            }
+
+            retraitTemp = { raison: raison, montant: montant };
+
+            // Analyse intelligente
+            const raisonLower = raison.toLowerCase();
+            let message = '';
+            let conseils = [];
+            let montantSuggere = montant;
+
+            // Catégories de dépenses
+            const depensesSuperflues = ['snack', 'fast-food', 'jus', 'soda', 'bonbon', 'chips', 'café', 'cigarette', 'alcool', 'bière', 'fête', 'soirée', 'jeu', 'pari'];
+            const depensesElevees = ['téléphone', 'ordinateur', 'moto', 'voiture', 'maison', 'appartement', 'terrain'];
+            const depensesLoisirs = ['chaussure', 'vetement', 'habit', 'sac', 'montre', 'bijou', 'maquillage', 'parfum'];
+            const depensesNecessaires = ['nourriture', 'médicament', 'hôpital', 'docteur', 'transport', 'bus', 'essence', 'loyer', 'facture', 'eau', 'électricité'];
+
+            if (depensesSuperflues.some(d => raisonLower.includes(d))) {
+                message = `🍔 Tu veux dépenser ${formaterNombre(montant)} FCFA pour "${raison}". C'est une dépense superflue qui n'apporte pas de valeur à long terme.`;
+                conseils = [
+                    "Pourquoi ne pas reporter cet achat de quelques jours ? L'envie passera peut-être.",
+                    `Tu pourrais économiser ${formaterNombre(Math.round(montant * 0.5))} FCFA en réduisant cette dépense de moitié.`,
+                    "Cet argent pourrait te rapprocher de ton objectif financier !"
+                ];
+                montantSuggere = Math.round(montant * 0.5);
+            } else if (depensesLoisirs.some(d => raisonLower.includes(d))) {
+                message = `👟 Tu veux dépenser ${formaterNombre(montant)} FCFA pour "${raison}". C'est un achat de loisir.`;
+                conseils = [
+                    "As-tu vraiment besoin de cet article maintenant ?",
+                    `Pourquoi ne pas chercher une alternative moins chère et économiser ${formaterNombre(Math.round(montant * 0.3))} FCFA ?`,
+                    "Attends les soldes ou cherche des promotions !"
+                ];
+                montantSuggere = Math.round(montant * 0.7);
+            } else if (depensesElevees.some(d => raisonLower.includes(d))) {
+                message = `💰 Tu veux dépenser ${formaterNombre(montant)} FCFA pour "${raison}". C'est un achat important.`;
+                conseils = [
+                    "C'est un gros investissement. As-tu comparé les prix ?",
+                    "Pourrais-tu attendre d'avoir épargné davantage ?",
+                    "Vérifie si tu peux payer en plusieurs fois sans intérêts."
+                ];
+                montantSuggere = montant;
+            } else if (depensesNecessaires.some(d => raisonLower.includes(d))) {
+                message = `✅ Tu veux dépenser ${formaterNombre(montant)} FCFA pour "${raison}". C'est une dépense nécessaire.`;
+                conseils = [
+                    "C'est une dépense essentielle, mais vérifie si tu peux trouver moins cher.",
+                    "Compare les prix avant d'acheter.",
+                    "Pense à négocier si c'est possible !"
+                ];
+                montantSuggere = Math.round(montant * 0.9);
+            } else {
+                message = `🤔 Tu veux dépenser ${formaterNombre(montant)} FCFA pour "${raison}".`;
+                conseils = [
+                    "Demande-toi si cet achat est vraiment nécessaire.",
+                    `Pourquoi ne pas diminuer le montant à ${formaterNombre(Math.round(montant * 0.8))} FCFA ?`,
+                    "Réfléchis à l'impact de cette dépense sur ton objectif."
+                ];
+                montantSuggere = Math.round(montant * 0.8);
+            }
+
+            // Vérifier l'impact sur l'objectif
+            if (data.objectifMontant > 0) {
+                const apresRetrait = data.epargne - montant;
+                const progressionAvant = Math.round((data.epargne / data.objectifMontant) * 100);
+                const progressionApres = Math.round((apresRetrait / data.objectifMontant) * 100);
+                
+                if (progressionAvant > progressionApres) {
+                    conseils.push(`⚠️ Ce retrait fera passer ta progression de ${progressionAvant}% à ${progressionApres}% !`);
+                }
+            }
+
+            // Afficher l'analyse
+            document.getElementById('messageAnalyse').textContent = message;
+            document.getElementById('conseilsListe').innerHTML = conseils.map(c => `<li>${c}</li>`).join('');
+            document.getElementById('montantSuggere').value = montantSuggere;
+            document.getElementById('analyseRetrait').classList.add('visible');
+        }
+
+        function confirmerRetrait() {
+            const montantFinal = parseFloat(document.getElementById('montantSuggere').value);
+            
+            if (!montantFinal || montantFinal <= 0) {
+                alert('Montant invalide');
+                return;
+            }
+
+            if (montantFinal > data.epargne) {
+                alert('Solde insuffisant !');
+                return;
+            }
+
+            // Déduire du solde
+            data.epargne -= montantFinal;
+
+            // Ajouter à l'historique
+            const transaction = {
+                type: 'retrait',
+                nom: 'Retrait',
+                raison: retraitTemp.raison,
+                montant: montantFinal,
+                date: new Date().toLocaleDateString('fr-FR'),
+                heure: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})
+            };
+            data.transactions.unshift(transaction);
+
+            // Ajouter au graphique
+            ajouterPointGraphique(data.epargne);
+
+            // Réinitialiser
+            retraitTemp = { raison: '', montant: 0 };
+            document.getElementById('raisonRetrait').value = '';
+            document.getElementById('montantRetrait').value = '';
+            document.getElementById('analyseRetrait').classList.remove('visible');
+
+            sauvegarderDonnees();
+            mettreAJourInterface();
+        }
+
+        function annulerRetrait() {
+            retraitTemp = { raison: '', montant: 0 };
+            document.getElementById('raisonRetrait').value = '';
+            document.getElementById('montantRetrait').value = '';
+            document.getElementById('analyseRetrait').classList.remove('visible');
+        }
+
+        // ============================
+        // HISTORIQUE
+        // ============================
+        function mettreAJourHistorique() {
+            const container = document.getElementById('historiqueTransactions');
+            
+            if (data.transactions.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">Aucune transaction pour le moment</p>';
+                return;
+            }
+
+            container.innerHTML = data.transactions.map(t => `
+                <div class="transaction-item">
+                    <div>
+                        <div class="desc">${t.type === 'depot' ? '💰' : '💸'} ${t.nom}${t.raison ? ' : ' + t.raison : ''}</div>
+                        <div class="date">${t.date} à ${t.heure}</div>
+                    </div>
+                    <div class="${t.type === 'depot' ? 'amount-positive' : 'amount-negative'}">
+                        ${t.type === 'depot' ? '+' : '-'}${formaterNombre(t.montant)} FCFA
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================
+        // GRAPHIQUE - CHART.JS
+        // ============================
+        let chartInstance = null;
+
+        function ajouterPointGraphique(solde) {
+            const now = new Date();
+            const label = now.toLocaleDateString('fr-FR') + ' ' + now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+            data.chartData.labels.push(label);
+            data.chartData.data.push(solde);
+
+            if (data.chartData.labels.length > 30) {
+                data.chartData.labels.shift();
+                data.chartData.data.shift();
+            }
+        }
+
+        function mettreAJourGraphique() {
+            const ctx = document.getElementById('epargneChart').getContext('2d');
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            if (data.chartData.labels.length === 0) {
+                data.chartData.labels = ['Début'];
+                data.chartData.data = [0];
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.chartData.labels,
+                    datasets: [{
+                        label: 'Épargne (FCFA)',
+                        data: data.chartData.data,
+                        borderColor: '#1a56db',
+                        backgroundColor: 'rgba(26, 86, 219, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#e02424',
+                        pointBorderColor: '#1a56db',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1a56db',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: '#1a56db',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return formaterNombre(context.parsed.y) + ' FCFA';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: {
+                                callback: function(value) {
+                                    return formaterNombre(value) + ' FCFA';
+                                }
+                            }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            let progression = 0;
+            if (data.objectifMontant > 0) {
+                progression = Math.min(100, Math.round((data.epargne / data.objectifMontant) * 100));
+            }
+            document.getElementById('graphProgressBar').style.width = progression + '%';
+            document.getElementById('graphProgressBar').textContent = progression + '%';
+            document.getElementById('graphProgressText').innerHTML = `
+                Objectif : <strong>${formaterFCFA(data.objectifMontant)}</strong> | 
+                Actuel : <strong>${formaterFCFA(data.epargne)}</strong>
+            `;
+        }
+
+        // ============================
+        // CHAT IA
+        // ============================
+        const reponsesIA = {
+            'épargne': [
+                "💡 Pour bien épargner, commence par te fixer un objectif clair et automatise tes virements dès la paie.",
+                "🏦 L'épargne de précaution devrait couvrir 3 à 6 mois de dépenses. C'est ta priorité !",
+                "📊 Essaie la méthode 50/30/20 : 50% besoins, 30% envies, 20% épargne."
+            ],
+            'epargne': [
+                "💡 Pour bien épargner, commence par te fixer un objectif clair et automatise tes virements dès la paie.",
+                "🏦 L'épargne de précaution devrait couvrir 3 à 6 mois de dépenses."
+            ],
+            'investir': [
+                "📈 Commence par un PEA ou une assurance-vie pour investir en bourse avec des avantages fiscaux.",
+                "🌍 Diversifie tes investissements : actions, obligations, immobilier...",
+                "⏰ L'investissement, c'est du long terme. Patience et régularité !"
+            ],
+            'budget': [
+                "📝 Fais un budget réaliste. Note TOUTES tes dépenses pendant un mois.",
+                "✂️ Identifie tes dépenses superflues. Un snack à 500 FCFA/jour = 15000 FCFA/mois !",
+                "🎯 Utilise l'enveloppe virtuelle : alloue un montant fixe par catégorie."
+            ],
+            'dépenser': [
+                "🛑 Avant de dépenser, demande-toi : 'En ai-je vraiment besoin ?'",
+                "⏳ Attends 24h avant un achat impulsif. L'envie passe souvent !",
+                "📱 Compare les prix avant d'acheter."
+            ],
+            'depenser': [
+                "🛑 Avant de dépenser, demande-toi : 'En ai-je vraiment besoin ?'",
+                "⏳ Attends 24h avant un achat impulsif."
+            ],
+            'argent': [
+                "💪 L'argent est un outil, pas un but. Utilise-le pour construire la vie que tu veux !",
+                "🚀 Chaque petit pas compte. Même 5000 FCFA/mois, c'est 60000 FCFA/an !",
+                "🌟 La liberté financière commence par de bonnes habitudes aujourd'hui."
+            ],
+            'dette': [
+                "⚠️ Priorise le remboursement des dettes au taux le plus élevé.",
+                "📋 Fais un plan de remboursement concret avec des échéances précises.",
+                "🤝 N'hésite pas à renégocier tes crédits si besoin."
+            ],
+            'bonjour': [
+                "👋 Salut ! Comment puis-je t'aider avec tes finances aujourd'hui ?",
+                "Hello ! Prêt à piloter ton argent ? 💰"
+            ],
+            'aide': [
+                "Je peux te parler d'épargne, d'investissement, de budget ou de contrôle des dépenses. Quel sujet t'intéresse ?",
+                "Pose-moi tes questions sur : épargne 💰, investissement 📈, budget 📝 ou dépenses 🛑"
+            ]
+        };
+
+        function envoyerMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            ajouterMessage(message, 'user');
+            input.value = '';
+
+            setTimeout(() => {
+                const reponse = genererReponse(message);
+                ajouterMessage(reponse, 'bot');
+            }, 500);
+        }
+
+        function ajouterMessage(texte, type) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'message ' + type;
+            div.textContent = texte;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function genererReponse(message) {
+            const msg = message.toLowerCase();
+            for (let mot in reponsesIA) {
+                if (msg.includes(mot)) {
+                    const reponses = reponsesIA[mot];
+                    return reponses[Math.floor(Math.random() * reponses.length)];
+                }
+            }
+            const defauts = [
+                "🤔 Je n'ai pas bien compris. Tu peux me parler d'épargne, d'investissement, de budget ou de dépenses.",
+                "💡 Essaie de me demander des conseils sur : l'épargne, l'investissement, la gestion de budget ou les dépenses.",
+                "Je suis là pour t'aider ! Pose-moi une question sur tes finances. 🚀"
+            ];
+            return defauts[Math.floor(Math.random() * defauts.length)];
+        }
+
+        // ============================
+        // UTILITAIRES
+        // ============================
+        function formaterNombre(nombre) {
+            return nombre.toLocaleString('fr-FR');
+        }
+
+        function formaterFCFA(montant) {
+            return formaterNombre(montant) + ' FCFA';
+        }
+
+        // ============================
+        // MISE À JOUR GLOBALE
+        // ============================
+        function mettreAJourInterface() {
+            document.getElementById('soldeEpargne').textContent = formaterFCFA(data.epargne);
+            mettreAJourHistorique();
+            mettreAJourDashboard();
+        }
+
+        // ============================
+        // INITIALISATION
+        // ============================
+        document.addEventListener('DOMContentLoaded', function() {
+            chargerDonnees();
+            mettreAJourInterface();
+        });
+    </script>
+</body>
+</html>'''
+
+# Sauvegarder le fichier
+with open('/mnt/agents/output/cashpilot.html', 'w', encoding='utf-8') as f:
+    f.write(html_code)
+
+print("✅ CashPilot créé avec succès !")
+print(f"📏 Taille : {len(html_code):,} caractères")
+print("🎨 Design : Bleu, Blanc, Rouge")
+print("💰 Devise : FCFA")
+print("\n🆕 NOUVEAUTÉ : Retrait intelligent avec analyse IA")
+print("  • L'utilisateur décrit son achat")
+print("  • CashPilot analyse et donne des conseils")
+print("  • Proposition de réduire le montant")
+print("  • Confirmation ou annulation du retrait")
